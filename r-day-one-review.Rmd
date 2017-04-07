@@ -1,0 +1,359 @@
+---
+title: "Day 1 R review"
+author: "Kara Woo"
+date: "April 6, 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Arithmetic
+
+```{r arithmetic}
+1 + 100
+1 == 2
+log(1)
+```
+
+## Creating variables
+
+```{r vars}
+x <- 1/40
+log(x)
+x + x
+x <- 100
+x
+```
+
+## Vectors
+
+```{r}
+# Create some vectors
+y <- c(1, 4.5, 2.7, 9)
+y
+z <- 1:5
+z
+
+# Create a vector of animals
+animals <- c("monkey", "rabbit", "dog")
+animals
+
+# Add 4 to each element of y
+y + 4
+y <- y + 4 # save y as the original y + 4
+y
+
+paste("The animal is: ", animals)
+```
+
+To inspect the type of an object:
+
+```{r}
+typeof(y)
+typeof(z)
+typeof(animals)
+```
+
+Predict what happens when I do this:
+
+```{r}
+new_vec <- c(5, 7.5, "hat")
+typeof(new_vec)
+new_vec
+```
+
+What is the value of each variable after each statement in the following:
+
+```{r}
+mass <- 47.5
+age <- 122
+mass <- mass * 2.3
+age <- age - 20
+```
+
+Remove a variable:
+
+```{r, error = TRUE}
+y2 <- c(1, 5, 7)
+rm(y2)
+y2
+```
+
+## Loading data
+
+```{r}
+cats <- read.csv(file = "data/feline-data.csv")
+cats
+
+# View the class of the object (a data frame)
+class(cats)
+
+# Extract a column
+cats$weight
+
+cats$weight + 2
+
+# Show the structure of an object
+str(cats)
+
+# Read in data without treating strings as factors
+cats2 <- read.csv(file = "data/feline-data.csv", 
+                  stringsAsFactors = FALSE)
+str(cats2)
+
+# Load gapminder dataset
+gapminder <- read.csv(file = "data/gapminder.csv",
+                      stringsAsFactors = FALSE)
+```
+
+View information about the data frame:
+
+```{r}
+# Structure of the dataset
+str(gapminder)
+
+# Number of rows, columns, rows & columns
+nrow(gapminder)
+ncol(gapminder)
+dim(gapminder)
+
+# Column names
+colnames(gapminder)
+
+# View first few rows
+head(gapminder, n = 5)
+tail(gapminder)
+
+# Summarize data
+summary(gapminder)
+```
+
+## Subsetting: Vectors
+
+First, we'll create a named vector:
+
+```{r}
+x <- c(5.4, 6.2, 7.1, 4.8, 7.5)
+x
+names(x) <- c("a", "b", "c", "d", "e")
+x
+```
+
+Indexing:
+
+```{r}
+x[1]
+x[4]
+x[c(1, 3)]
+x[1:4]
+x[c(1, 1, 3)]
+x[6]
+```
+
+Excluding:
+
+```{r}
+x[-2]
+x[c(-1, -5)]
+x[-c(1, 5)]
+```
+Subsetting by name:
+
+```{r}
+x[c("a", "c")]
+```
+
+Several ways to get b, c, and d:
+
+```{r}
+x[c(-1, -5)]
+x[2:4]
+x[c("b", "c", "d")]
+x[c(2, 3, 4)]
+```
+
+Logical subsetting:
+
+```{r}
+x > 6
+x
+x[x > 6]
+x[x < 7]
+```
+
+Counting how many elements of a variable meet some condition:
+
+```{r}
+length(x)
+x_new <- x[x > 6]
+length(x_new)
+```
+
+## Subsetting: Data Frames
+
+Extract a column (I'll wrap this in `head` so we don't have to see all the output):
+
+```{r}
+head(gapminder$year)
+```
+
+Subset rows and columns by index
+
+```{r}
+gapminder[1:3,]
+gapminder[3,]
+gapminder[1:3, 1:3]
+```
+
+Subset by column names (I'll wrap this in `head` so we don't have to see all the output):
+
+```{r}
+head(gapminder[, c("lifeExp", "pop")])
+```
+
+Logical subsetting:
+
+```{r}
+head(gapminder[gapminder$year < 1960, c("year", "pop")])
+```
+
+Challenge exercise answers:
+
+```{r}
+# Extract observations collected for the year 1957 (using head() to show only the first few rows)
+head(gapminder[gapminder$year == 1957,])
+
+# Extract all columns except 1 through to 4
+head(gapminder[, c(-1:-4)])
+head(gapminder[, -1:-4])
+head(gapminder[, -c(1:4)])
+
+# Extract the rows where the life expectancy is longer the 80 years
+head(gapminder[gapminder$lifeExp > 80, ])
+
+# Extract the first row, and the fourth and fifth columns (lifeExp and gdpPercap).
+gapminder[1, 4:5]
+gapminder[1, c(4, 5)]
+
+# Advanced: extract rows that contain information for the years 2002 and 2007
+head(gapminder[gapminder$year == 2002 | gapminder$year == 2007, ])
+head(gapminder[gapminder$year %in% c(2002, 2007), ])
+```
+
+## Plotting
+
+```{r, eval = FALSE}
+# Installing the package (only needs to be done once)
+install.packages("ggplot2")
+```
+
+```{r}
+# Load the package (needs to be done in each new R session when you want to use it)
+library("ggplot2")
+```
+
+A basic scatter plot of GDP vs. life expectancy
+
+```{r}
+ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp)) +
+  geom_point()
+```
+
+\pagebreak
+
+Life expectancy over time, points colored by continent:
+
+```{r}
+ggplot(data = gapminder, aes(x = year, y = lifeExp, color = continent)) +
+  geom_point()
+```
+
+\pagebreak
+
+Life expectancy over time, lines and points
+
+```{r}
+ggplot(data = gapminder, aes(x = year, y = lifeExp,
+                             color = continent, by = country)) +
+  geom_line() +
+  geom_point()
+```
+
+\pagebreak
+
+Only color the lines, not the points: 
+
+```{r}
+ggplot(data = gapminder, aes(x = year, y = lifeExp, by = country)) +
+  geom_point() +
+  geom_line(aes(color = continent))
+```
+
+\pagebreak
+
+Log transformed x axis
+
+```{r}
+ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp, color = continent)) +
+  geom_point() +
+  scale_x_log10()
+```
+
+\pagebreak
+
+Fit a smoothing line and increase point size:
+
+```{r}
+ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp)) +
+  geom_point(size = 4) +
+  scale_x_log10() +
+  geom_smooth(method = "lm")
+```
+
+```{r}
+# Look up help for a function
+?geom_smooth
+```
+
+Facetting:
+
+```{r, fig.asp = 1, out.width = "90%"}
+# Facet grid
+ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+  scale_x_log10() +
+  facet_wrap(~ continent)
+
+# Facet grid
+ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+  scale_x_log10() +
+  facet_grid(year ~ continent)
+```
+
+\pagebreak
+
+Subsetting data before plotting:
+
+```{r}
+asia <- gapminder[gapminder$continent == "Asia", ]
+ggplot(data = asia, aes(x = gdpPercap, y = lifeExp)) +
+  geom_point()
+```
+
+\pagebreak
+
+Modifying labels and theme and saving a plot:
+
+```{r}
+ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+  xlab("GDP per capita") +
+  ylab("Life expectancy") +
+  ggtitle("Figure 1") +
+  theme_void() +
+  ggsave("my_awesome_plot.png", width = 6, height = 4)
+```
+
